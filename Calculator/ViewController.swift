@@ -49,10 +49,11 @@ class ViewController: UIViewController {
         }
         
         switch operation {
-        case "×": perfomOperation({ (op1, op2) -> Double in op1 * op2; })
-//        case "÷": perfomOperation(multiply)
-//        case "−": perfomOperation(multiply)
-//        case "+": perfomOperation(multiply)
+        case "×": perfomOperation {$0 * $1}
+        case "÷": perfomOperation {$1 / $0}
+        case "−": perfomOperation {$1 - $0}
+        case "+": perfomOperation {$0 + $1}
+        case "√": perfomOperation {sqrt($0)}
         default: break
         }
     }
@@ -60,6 +61,13 @@ class ViewController: UIViewController {
     func perfomOperation(operation: (Double, Double) -> Double) {
         if operandStack.count >= 2 {
             displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
+            enter()
+        }
+    }
+    
+    func perfomOperation(operation: Double -> Double) {
+        if operandStack.count >= 1 {
+            displayValue = operation(operandStack.removeLast())
             enter()
         }
     }
