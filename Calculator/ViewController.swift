@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var display: UILabel!
+    @IBOutlet weak var historyDisplay: UILabel!
     
     var userIsInTheMiddleOfTypingANumber: Bool = false
     var userTypedPoint: Bool = false
@@ -39,10 +40,13 @@ class ViewController: UIViewController {
     }
     
     var operandStack = Array<Double>()
+    var inputHistoryStack = Array<String>()
+
     @IBAction func enter() {
         userIsInTheMiddleOfTypingANumber = false
         userTypedPoint = false
         operandStack.append(displayValue)
+        historyDisplay.text = historyDisplay.text! + "\(displayValue)";
         println("operandStack = \(operandStack)")
     }
     
@@ -59,9 +63,9 @@ class ViewController: UIViewController {
     @IBAction func operate(sender: UIButton) {
         let operation = sender.currentTitle!
         if userIsInTheMiddleOfTypingANumber {
-            enter()s
+            enter()
         }
-        
+        historyDisplay.text = historyDisplay.text! + operation;
         switch operation {
             case "×": perfomOperation {$0 * $1}
             case "÷": perfomOperation {$1 / $0}
@@ -92,6 +96,16 @@ class ViewController: UIViewController {
     func addConstant(constant: Double) {
         displayValue = constant
         enter()
+    }
+    
+    
+    @IBAction func clear() {
+        historyDisplay.text = "";
+        display.text = "0";
+        userIsInTheMiddleOfTypingANumber = false;
+        userTypedPoint = false;
+        operandStack = []
+        
     }
 }
 
