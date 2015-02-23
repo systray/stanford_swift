@@ -13,14 +13,27 @@ class ViewController: UIViewController {
     @IBOutlet weak var display: UILabel!
     
     var userIsInTheMiddleOfTypingANumber: Bool = false
+    var userTypedPoint: Bool = false
 
     @IBAction func appendDigit(sender: UIButton) {
         let digit = sender.currentTitle!
         if userIsInTheMiddleOfTypingANumber {
-            display.text = display.text! + digit;
+            if digit == "." && !userTypedPoint {
+                userTypedPoint = true
+                display.text = display.text! + digit;
+            }
+            else if digit != "." {
+                display.text = display.text! + digit;
+            }
         }
         else {
-            display.text = digit
+            if digit == "." {
+                userTypedPoint = true
+                display.text = "0."
+            }
+            else {
+                display.text = digit
+            }
             userIsInTheMiddleOfTypingANumber = true
         }
     }
@@ -28,6 +41,7 @@ class ViewController: UIViewController {
     var operandStack = Array<Double>()
     @IBAction func enter() {
         userIsInTheMiddleOfTypingANumber = false
+        userTypedPoint = false
         operandStack.append(displayValue)
         println("operandStack = \(operandStack)")
     }
@@ -45,16 +59,19 @@ class ViewController: UIViewController {
     @IBAction func operate(sender: UIButton) {
         let operation = sender.currentTitle!
         if userIsInTheMiddleOfTypingANumber {
-            enter()
+            enter()s
         }
         
         switch operation {
-        case "×": perfomOperation {$0 * $1}
-        case "÷": perfomOperation {$1 / $0}
-        case "−": perfomOperation {$1 - $0}
-        case "+": perfomOperation {$0 + $1}
-        case "√": perfomOperation {sqrt($0)}
-        default: break
+            case "×": perfomOperation {$0 * $1}
+            case "÷": perfomOperation {$1 / $0}
+            case "−": perfomOperation {$1 - $0}
+            case "+": perfomOperation {$0 + $1}
+            case "√": perfomOperation {sqrt($0)}
+            case "sin": perfomOperation {sin($0)}
+            case "cos": perfomOperation {cos($0)}
+            case "π": addConstant(M_PI)
+            default: break
         }
     }
     
@@ -70,6 +87,11 @@ class ViewController: UIViewController {
             displayValue = operation(operandStack.removeLast())
             enter()
         }
+    }
+    
+    func addConstant(constant: Double) {
+        displayValue = constant
+        enter()
     }
 }
 
