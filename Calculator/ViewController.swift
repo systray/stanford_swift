@@ -39,15 +39,20 @@ class ViewController: UIViewController {
         }
     }
     
-    var operandStack = Array<Double>()
+//    var operandStack = Array<Double>()
+    var brain = CalculatorBrain()
     var inputHistoryStack = Array<String>()
 
     @IBAction func enter() {
         userIsInTheMiddleOfTypingANumber = false
         userTypedPoint = false
-        operandStack.append(displayValue)
         historyDisplay.text = historyDisplay.text! + "\(displayValue)";
-        println("operandStack = \(operandStack)")
+        if let result = brain.pushOperand(displayValue) {
+            displayValue = result
+        } else {
+            // TODO: displayValue an optional
+            displayValue = 0
+        }
     }
     
     var displayValue: Double {
@@ -61,42 +66,62 @@ class ViewController: UIViewController {
     }
     
     @IBAction func operate(sender: UIButton) {
-        let operation = sender.currentTitle!
+        //let operation = sender.currentTitle!
         if userIsInTheMiddleOfTypingANumber {
             enter()
         }
-        historyDisplay.text = historyDisplay.text! + operation;
-        switch operation {
-            case "×": perfomOperation {$0 * $1}
-            case "÷": perfomOperation {$1 / $0}
-            case "−": perfomOperation {$1 - $0}
-            case "+": perfomOperation {$0 + $1}
-            case "√": perfomOperation {sqrt($0)}
-            case "sin": perfomOperation {sin($0)}
-            case "cos": perfomOperation {cos($0)}
-            case "π": addConstant(M_PI)
+        if let operation = sender.currentTitle {
+            historyDisplay.text = historyDisplay.text! + operation;
+            if let result = brain.performOperation(operation) {
+                displayValue = result
+            } else {
+                displayValue = 0
+            }
+        }
+//        switch operation {
+//            case "×": perfomOperation {$0 * $1}
+//            case "÷": perfomOperation {$1 / $0}
+//            case "−": perfomOperation {$1 - $0}
+//            case "+": perfomOperation {$0 + $1}
+//            case "√": perfomOperation {sqrt($0)}
+//            case "sin": perfomOperation {sin($0)}
+//            case "cos": perfomOperation {cos($0)}
+//            case "π": addConstant(M_PI)
+//            default: break
+//        }
+    }
+    
+//    func perfomOperation(operation: (Double, Double) -> Double) {
+//        if operandStack.count >= 2 {
+//            displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
+//            enter()
+//        }
+//    }
+//    
+//    func perfomOperation(operation: Double -> Double) {
+//        if operandStack.count >= 1 {
+//            displayValue = operation(operandStack.removeLast())
+//            enter()
+//        }
+//    }
+//    
+//    func addConstant(constant: Double) {
+//        displayValue = constant
+//        enter()
+//    }
+    
+    @IBAction func addConstant(sender: UIButton) {
+        var constant = "0"
+        if let constantText = sender.currentTitle {
+            switch constantText {
+            case "π": constant = "\(M_PI)"
             default: break
+            }
         }
-    }
-    
-    func perfomOperation(operation: (Double, Double) -> Double) {
-        if operandStack.count >= 2 {
-            displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
-            enter()
-        }
-    }
-    
-    func perfomOperation(operation: Double -> Double) {
-        if operandStack.count >= 1 {
-            displayValue = operation(operandStack.removeLast())
-            enter()
-        }
-    }
-    
-    func addConstant(constant: Double) {
-        displayValue = constant
+        display.text = "\(constant)"
         enter()
     }
+    
     
     
     @IBAction func clear() {
@@ -104,7 +129,7 @@ class ViewController: UIViewController {
         display.text = "0";
         userIsInTheMiddleOfTypingANumber = false;
         userTypedPoint = false;
-        operandStack = []
+        //operandStack = []
         
     }
 }
