@@ -51,13 +51,13 @@ class ViewController: UIViewController {
             displayValue = result
         } else {
             // TODO: displayValue an optional
-            displayValue = 0
+            displayValue = nil
         }
     }
     
-    var displayValue: Double {
+    var displayValue: Double? {
         get {
-            return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+            return ((display.text) != nil) ? NSNumberFormatter().numberFromString(display.text!)!.doubleValue : nil
         }
         set {
             display.text = "\(newValue)"
