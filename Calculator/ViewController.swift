@@ -39,20 +39,32 @@ class ViewController: UIViewController {
         }
     }
     
+    
+    @IBAction func appendVariable(sender: UIButton) {
+        let variable = sender.currentTitle!
+        if let result = brain.pushOperand(variable) {
+            displayValue = result
+        } else {
+            displayValue = nil
+        }
+        historyDisplay.text = "\(brain)"
+    }
+    
 //    var operandStack = Array<Double>()
     var brain = CalculatorBrain()
-    var inputHistoryStack = Array<String>()
 
     @IBAction func enter() {
         userIsInTheMiddleOfTypingANumber = false
         userTypedPoint = false
-        historyDisplay.text = historyDisplay.text! + "\(displayValue)";
-        if let result = brain.pushOperand(displayValue) {
-            displayValue = result
-        } else {
-            // TODO: displayValue an optional
-            displayValue = nil
+        
+        if let operandValue = displayValue {
+            if let result = brain.pushOperand(operandValue) {
+                displayValue = result
+            } else {
+                displayValue = nil
+            }
         }
+        historyDisplay.text = "\(brain)"
     }
     
     var displayValue: Double? {
@@ -60,7 +72,11 @@ class ViewController: UIViewController {
             return ((display.text) != nil) ? NSNumberFormatter().numberFromString(display.text!)!.doubleValue : nil
         }
         set {
-            display.text = "\(newValue)"
+            if newValue == nil {
+                display.text = " "
+            } else {
+                display.text = "\(newValue!)"
+            }
             userIsInTheMiddleOfTypingANumber = false
         }
     }
@@ -71,44 +87,15 @@ class ViewController: UIViewController {
             enter()
         }
         if let operation = sender.currentTitle {
-            historyDisplay.text = historyDisplay.text! + operation;
             if let result = brain.performOperation(operation) {
                 displayValue = result
             } else {
-                displayValue = 0
+                displayValue = nil
             }
         }
-//        switch operation {
-//            case "×": perfomOperation {$0 * $1}
-//            case "÷": perfomOperation {$1 / $0}
-//            case "−": perfomOperation {$1 - $0}
-//            case "+": perfomOperation {$0 + $1}
-//            case "√": perfomOperation {sqrt($0)}
-//            case "sin": perfomOperation {sin($0)}
-//            case "cos": perfomOperation {cos($0)}
-//            case "π": addConstant(M_PI)
-//            default: break
-//        }
+        
+        historyDisplay.text = "\(brain)"
     }
-    
-//    func perfomOperation(operation: (Double, Double) -> Double) {
-//        if operandStack.count >= 2 {
-//            displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
-//            enter()
-//        }
-//    }
-//    
-//    func perfomOperation(operation: Double -> Double) {
-//        if operandStack.count >= 1 {
-//            displayValue = operation(operandStack.removeLast())
-//            enter()
-//        }
-//    }
-//    
-//    func addConstant(constant: Double) {
-//        displayValue = constant
-//        enter()
-//    }
     
     @IBAction func addConstant(sender: UIButton) {
         var constant = "0"
@@ -121,8 +108,6 @@ class ViewController: UIViewController {
         display.text = "\(constant)"
         enter()
     }
-    
-    
     
     @IBAction func clear() {
         historyDisplay.text = "";

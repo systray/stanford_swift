@@ -8,9 +8,10 @@
 
 import Foundation
 
-class CalculatorBrain {
+class CalculatorBrain: Printable {
     private enum Op: Printable {
         case Operand(Double)
+        case Variable(String)
         case UnaryOperation(String, Double -> Double)
         case BinaryOperation(String, (Double, Double) -> Double)
         
@@ -23,13 +24,57 @@ class CalculatorBrain {
                     return symbol
                 case .BinaryOperation(let symbol, _):
                     return symbol
+                case .Variable(let variable):
+                    return variable;
                 }
             }
         }
     }
     
+    var description: String {
+        get {
+            let (result, _) = description(opStack)
+            return result ?? ""
+        }
+    }
+    
+    private func description(ops: [Op]) -> (result: String?, remainingOps: [Op]) {
+        if !ops.isEmpty {
+            var remainingOps = ops
+            let op = remainingOps.removeLast()
+            switch op {
+            case .Operand(let operand):
+                return ("\(operand)", remainingOps)
+            case .UnaryOperation(let operation, _):
+                let operandEvaluation = description(remainingOps)
+                if let operand = operandEvaluation.result {
+                    return ("\(operation) (\(operand))", operandEvaluation.remainingOps)
+                }
+            case .BinaryOperation(let operation, _):
+                let op1Evaluation = description(remainingOps)
+                if let operand1 = op1Evaluation.result {
+                    let op2Evaluation = description(op1Evaluation.remainingOps)
+                    if let operand2 = op2Evaluation.result {
+                        var result = ""
+                        if operation == "×" || operation == "÷" {
+                            result = "(\(operand2)) \(operation) \(operand1)"
+                        }
+                        else {
+                            result = "\(operand2) \(operation) \(operand1)"
+                        }
+                        return (result, op2Evaluation.remainingOps)
+                    }
+                }
+            case .Variable(let variable):
+                return ("\(variable)", remainingOps)
+            }
+        }
+        return (nil, ops)
+    }
+    
     private var opStack = [Op]()
     private var knownOps = [String:Op]()
+    var variableValues = Dictionary<String, Double>()
     
     init() {
         func learnOp(op: Op) {
@@ -42,6 +87,7 @@ class CalculatorBrain {
         learnOp(Op.UnaryOperation("√", sqrt))
         learnOp(Op.UnaryOperation("sin", sin))
         learnOp(Op.UnaryOperation("cos", cos))
+        variableValues["X"] = 5
     }
     
     private func evaluate(ops: [Op]) -> (result: Double?, remainingOps: [Op]) {
@@ -64,6 +110,8 @@ class CalculatorBrain {
                         return (operation(operand1, operand2), op2Evaluation.remainingOps)
                     }
                 }
+            case .Variable(let variable):
+                return (variableValues[variable], remainingOps)
             }
         }
         return (nil, ops)
@@ -72,6 +120,8 @@ class CalculatorBrain {
     func evaluate() -> Double? {
         let (result, remainder) = evaluate(opStack)
         println("\(opStack) = \(result) with \(remainder) left over")
+        let selfDescription = "\(self)"
+        println(selfDescription)
         return result
     }
     
@@ -79,6 +129,12 @@ class CalculatorBrain {
         opStack.append(Op.Operand(operand))
         return evaluate()
     }
+    
+    func pushOperand(operand: String) -> Double? {
+        opStack.append(Op.Variable(operand))
+        return evaluate()
+    }
+    
     
     func performOperation(symbol: String) -> Double? {
         if let operation = knownOps[symbol] {
