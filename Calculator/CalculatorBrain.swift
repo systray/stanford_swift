@@ -142,4 +142,8 @@ class CalculatorBrain: Printable {
         }
         return evaluate()
     }
+    
+    func clear() {
+        opStack = []
+    }
 }

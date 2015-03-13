@@ -114,8 +114,14 @@ class ViewController: UIViewController {
         display.text = "0";
         userIsInTheMiddleOfTypingANumber = false;
         userTypedPoint = false;
-        //operandStack = []
-        
+        brain.clear()
     }
+    
+    @IBAction func setMemory(sender: UIButton) {
+        brain.variableValues["M"] = displayValue
+        userIsInTheMiddleOfTypingANumber = false;
+        displayValue = brain.evaluate()
+    }
+    
 }
 
